@@ -278,6 +278,8 @@
         NSMutableDictionary *mutDic;
         ddMessageArray =[NSMutableArray new];
         
+        if ([xMessageArray count] > 1) {
+            
         for (int i = 0; i < xMessageArray.count; i++)
         {
             mutDic =[NSMutableDictionary new];
@@ -320,7 +322,7 @@
             
           }
         
-        
+        }
         
         
     }

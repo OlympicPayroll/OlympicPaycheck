@@ -56,7 +56,11 @@
 -(void)viewDidLoad
 {
     [super viewDidLoad];
-    //[UIApplication sharedApplication].applicationIconBadgeNumber = 1;
+ 
+    if([UIApplication sharedApplication].applicationIconBadgeNumber >1)
+    {
+       [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+    }
     
     [self.txtEmaiAddress setInputAccessoryView:self.accessoryView];
     [self.txtSSN setInputAccessoryView:self.accessoryView];
@@ -117,8 +121,8 @@
     
     //self.title =@"Olympic Payroll Services";
     self.txtSSN.secureTextEntry = YES;
-    //self.txtEmaiAddress.text =@"ohheyliv@aol.com";
-    //self.txtSSN.text =@"3546";
+    self.txtEmaiAddress.text =@"ohheyliv@aol.com";
+    self.txtSSN.text =@"3546";
     //self.txtEmaiAddress.text =@"VALE.S2020@GMAIL.COM";
     //self.txtSSN.text =@"6922";
     

@@ -40,7 +40,7 @@ NSString *soapMessage = [NSString stringWithFormat:
 
 
 
--(void) GetClientAccountsInfo :(NSString*) email SSN:(NSString*) ssn DeviceToken:(NSString*)deviceToken MethodName:(NSString*)methodName
+-(void) GetClientAccountsInfo :(NSString*) email SSN:(NSString*) ssn DeviceToken:(NSString*)deviceToken DeviceType:(NSString*)deviceType MethodName:(NSString*)methodName
 {
     
     //deviceToken=@"abcd";
@@ -52,6 +52,7 @@ NSString *soapMessage = [NSString stringWithFormat:
                              "<emailAddress>%@</emailAddress>\n"
                              "<ssn>%@</ssn>\n"
                              "<deviceToken>%@</deviceToken>\n"
+                             "<deviceType>%@</deviceType>\n"
                              "</%@>\n"
                              "</soap:Body>\n"
                              "</soap:Envelope>\n"
@@ -59,6 +60,7 @@ NSString *soapMessage = [NSString stringWithFormat:
                              ,email
                              ,ssn
                              ,deviceToken
+                             ,deviceType
                              ,methodName
                              ];
     

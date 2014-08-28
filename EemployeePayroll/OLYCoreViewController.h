@@ -29,6 +29,8 @@
 @property(nonatomic, strong) NSMutableString *SoapResults;
 @property(nonatomic, strong) NSString *TokenID;
 
+@property(nonatomic, assign) BOOL IsReadLatestPayroll;
+
 //@property(nonatomic, strong) UIActivityIndicatorView *Spinner;
 
 @end

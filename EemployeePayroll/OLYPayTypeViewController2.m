@@ -26,7 +26,7 @@
     NSMutableDictionary *previousPayrollData;
     NSString *pickYear;
     UIActivityIndicatorView *spinner;
-    BOOL isRead;
+ //   BOOL isRead;
     NSTimer *logOffTimer;
     int seconds;
 }
@@ -90,7 +90,13 @@
     tapCount=0;
     
     [self.navigationController setToolbarHidden:NO animated:YES];
-    self.NewImg.image = [UIImage imageNamed:nil];
+    //self.NewImg.image = [UIImage imageNamed:nil];
+    
+    if(self.IsReadLatestPayroll)
+    {
+      [spinner stopAnimating];
+       self.NewImg.image = [UIImage imageNamed:nil];
+    }
     
     
 }
@@ -122,12 +128,14 @@
 }
 
 - (void)createToolbar {
+    /*
     UIBarButtonItem *changeCategory = [[UIBarButtonItem alloc] initWithTitle:@"Change Category" style:UIBarButtonItemStyleBordered target:self action:@selector(goToChangeCategory:)];
     UIBarButtonItem *difficultyExplanation = [[UIBarButtonItem alloc] initWithTitle:@"What is Difficulty?" style:UIBarButtonItemStyleBordered target:self action:@selector(goToDifficultyExplanation:)];
     UIBarButtonItem *spacer = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
     
     NSArray *buttonItems = [NSArray arrayWithObjects:spacer, changeCategory, spacer, difficultyExplanation, spacer, nil];
     // [self.EmpInformation setItems:buttonItems];
+     */
 }
 
 
@@ -168,7 +176,7 @@
             
             
             
-            if(!isRead)
+            if(!self.IsReadLatestPayroll)
             {
                 OLYSoapMessages *objSoapMsg =[OLYSoapMessages new];
                 NSString *sentID = [[[currentPayrollData objectForKey:@"Details"] objectAtIndex:0] valueForKey:@"SentID"] ;
@@ -178,6 +186,8 @@
                 [objSoapMsg FlagReadPayrolls:sentID MethodName:self.MethodName];
                 
                 [self FireRequest: objSoapMsg.UrlRequest];
+                
+                self.IsReadLatestPayroll = YES;
                 
             }
             
@@ -362,8 +372,10 @@ qualifiedName:(NSString *)qName
             
             self.lblCheckDate.text = [NSString stringWithFormat:@"(%@,%@)", monthYear[0], monthYear[1]];
             
-            isRead = [[[[currentPayrollData objectForKey:@"Details"] objectAtIndex:0] valueForKey:@"IsRead"] boolValue];
-            if(!isRead)
+            
+            self.IsReadLatestPayroll = [[[[currentPayrollData objectForKey:@"Details"] objectAtIndex:0] valueForKey:@"IsRead"] boolValue];
+            
+            if(!self.IsReadLatestPayroll)
             {
                 self.NewImg.image = [UIImage imageNamed:@"new.png"];
             }
