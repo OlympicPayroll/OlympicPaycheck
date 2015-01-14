@@ -70,8 +70,8 @@
     vcNet.SentID = sentID;
     vcNet.RecordNumber = self.RecordNumber;
     vcNet.EmailDetails = self.EmailDetails;
-    vcNet.EmpName = self.EmpName;
-    vcNet.CompName = self.CompName;
+   // vcNet.EmpName = self.EmpName;
+    //vcNet.CompName = self.CompName;
     vcNet.PayDate =self.PayDate;
     vcNet.NetValue = self.NetValue;
     

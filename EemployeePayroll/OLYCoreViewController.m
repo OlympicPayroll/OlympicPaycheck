@@ -6,6 +6,8 @@
 //  Copyright (c) 2013 Reynante Sabud. All rights reserved.
 //
 //#import "OLYAppDelegate.h"
+
+#import <SystemConfiguration/SystemConfiguration.h>
 #import "OLYCoreViewController.h"
 
 @interface OLYCoreViewController ()
@@ -13,7 +15,7 @@
     //---web service access---
     //NSMutableData *responseData;
    // NSMutableString *soapResults;
-    NSURLConnection *conn;
+    //NSURLConnection *conn;
     
     //---xml parsing---
     NSXMLParser *xmlParser;
@@ -117,7 +119,6 @@
     [alert show];
     
 }
-
 
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {

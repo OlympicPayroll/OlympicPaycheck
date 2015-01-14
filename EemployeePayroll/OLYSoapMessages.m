@@ -26,13 +26,14 @@ NSString *soapMessage = [NSString stringWithFormat:
                          "</%@>\n"
                          "</soap:Body>\n"
                          "</soap:Envelope>\n"
-                         ,methodName
+                          ,methodName
                          ,email
                          ,ssn
-                         ,methodName
-                         ];
+                         ,methodName];
+                         
 
     [self PrepareRequest:methodName SoapMessage:soapMessage];
+
 
 }
 
@@ -357,7 +358,7 @@ NSString *soapMessage = [NSString stringWithFormat:
     
 }
 
-/*
+
 -(void) PrepareJpegImageRequest :(NSString*) methodName ImageData:(NSData*) imgData {
     
     NSURL *url = [NSURL URLWithString:@"https://myolympicpay.com/WebServices/EmplPayrollInfo.asmx"];
@@ -371,67 +372,40 @@ NSString *soapMessage = [NSString stringWithFormat:
     
     
 }
-*/
+
 
 -(void)WCFTest :(NSString*)methodName{
     
-    /*
-    NSString *soapMessage = [NSString stringWithFormat:
-							 @"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-							 "<SOAP-ENV:Envelope \n"
-							 "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"; \n"
-							 "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; \n"
-							 "xmlns:SOAP-ENC=\"http://schemas.xmlsoap.org/soap/encoding/\"; \n"
-							 "SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\"; \n"
-							 "xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">; \n"
-							 "<SOAP-ENV:Body> \n"
-							 "<GetData xmlns=\"http://tempuri.org/\">"
-                             "<value>77</value>\n"
-							 "</GetData> \n"
-							 "</SOAP-ENV:Body> \n"
-							 "</SOAP-ENV:Envelope>"];
-
-    
-   */
+      
     
     NSString *soapMessage = [NSString stringWithFormat:
                              @"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                              "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
                              "<soap:Body>\n"
                              "<%@ xmlns=\"http://tempuri.org/\">\n"
-                             "<value>77</value>\n"
+                             "<name>Dear God</name>\n"
                              "</%@>\n"
                              "</soap:Body>\n"
                              "</soap:Envelope>\n"
                              ,methodName
                              ,methodName
                              ];
+
     
+    NSURL *url = [NSURL URLWithString:@"http:/74.208.64.78:8000/ImportClientAccountsHistory.asmx"];
     
-    NSURL *url = [NSURL URLWithString:@"http:/74.208.64.78:8000/OLYService.svc/singleWsdl"];
-    
-    NSMutableURLRequest *theRequest = [NSMutableURLRequest requestWithURL:url];
+    self.UrlRequest = [NSMutableURLRequest requestWithURL:url];
     NSString *msgLength = [NSString stringWithFormat:@"%lu", (unsigned long)[soapMessage length]];
-    [theRequest addValue: @"text/xml; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
-    [theRequest addValue: @"http://tempuri.org/IService1/GetData" forHTTPHeaderField:@"Soapaction"];
-    [theRequest addValue: msgLength forHTTPHeaderField:@"Content-Length"];
-    [theRequest setHTTPMethod:@"POST"];
-    [theRequest setHTTPBody: [soapMessage dataUsingEncoding:NSUTF8StringEncoding]];
-    NSURLConnection *theConnection = [[NSURLConnection alloc] initWithRequest:theRequest delegate:self];
-	
-    NSError *error;
-    NSURLResponse *response;
-    NSData *result = [NSURLConnection sendSynchronousRequest:theRequest returningResponse:&response error:&error];
     
     
-    if(theConnection) {
-
-    }
-    else {
-        NSLog(@"theConnection is NULL");
-	}
-
-
+    NSString *reqMethod = [NSString stringWithFormat: @"http://tempuri.org/%@",methodName];
+    
+    
+    [self.UrlRequest addValue: @"text/xml; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
+    [self.UrlRequest addValue: reqMethod forHTTPHeaderField:@"SOAPAction"];
+    [self.UrlRequest addValue: msgLength forHTTPHeaderField:@"Content-Length"];
+    [self.UrlRequest setHTTPMethod:@"POST"];
+    [self.UrlRequest setHTTPBody: [soapMessage dataUsingEncoding:NSUTF8StringEncoding]];
     
 }
 

@@ -29,6 +29,7 @@
  //   BOOL isRead;
     NSTimer *logOffTimer;
     int seconds;
+  // NSData *currentPayrollInfoData;
 }
 
 @end
@@ -36,26 +37,11 @@
 
 @implementation OLYPayTypeViewController2
 
-/*
- NSString *str=[self.uploadimagearry objectAtIndex:indexPath.row];
- NSURL *uploadimageURL = [NSURL URLWithString:[str stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
- // NSData *imgdata=[NSData dataWithContentsOfURL:uploadimageURL];
- 
- //UIImage * uploadimage = [UIImage imageWithData:imgdata];
- cell.imageView.frame=CGRectMake(0, -15, 50, 35);
- //[cell.imageView setImageWithURL:uploadimageURL];
- [cell.imageView setImageWithURL:uploadimageURL];
- */
 
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
-    //self.navigationController.toolbarHidden = NO;
-    
-    //self.navigationController.navigationBar.hidden = NO;
-    // [self.navigationController setNavigationBarHidden:NO animated:YES];
     
     self.navigationController.navigationBar.hidden = NO;
     
@@ -90,7 +76,6 @@
     tapCount=0;
     
     [self.navigationController setToolbarHidden:NO animated:YES];
-    //self.NewImg.image = [UIImage imageNamed:nil];
     
     if(self.IsReadLatestPayroll)
     {
@@ -127,17 +112,6 @@
     
 }
 
-- (void)createToolbar {
-    /*
-    UIBarButtonItem *changeCategory = [[UIBarButtonItem alloc] initWithTitle:@"Change Category" style:UIBarButtonItemStyleBordered target:self action:@selector(goToChangeCategory:)];
-    UIBarButtonItem *difficultyExplanation = [[UIBarButtonItem alloc] initWithTitle:@"What is Difficulty?" style:UIBarButtonItemStyleBordered target:self action:@selector(goToDifficultyExplanation:)];
-    UIBarButtonItem *spacer = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
-    
-    NSArray *buttonItems = [NSArray arrayWithObjects:spacer, changeCategory, spacer, difficultyExplanation, spacer, nil];
-    // [self.EmpInformation setItems:buttonItems];
-     */
-}
-
 
 
 
@@ -163,17 +137,33 @@
     
     [spinner stopAnimating];
     
-    NSString *empType =[currentPayrollData objectForKey:@"EmpType"];
     
-    if([empType isEqualToString:@"EMAIL"])
+    if(!self.IsReadLatestPayroll)
+    {
+        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+        [prefs setValue:@"True" forKey:@"IsReadLatestPayroll"];
+        [prefs synchronize];
+
+    }
+    
+    
+    if([[currentPayrollData objectForKey:@"DataSource"] isEqualToString:@"HISTORY"])
+    {
+        
+        OLYDetailViewController *nextViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"HistoryDetails"];
+        nextViewController.ClientAccountID = self.ClientAccountID;
+        nextViewController.CheckDate = [currentPayrollData valueForKey:@"PayDate"];
+        nextViewController.HistoryData = currentPayrollData;
+        [self.navigationController pushViewController:nextViewController animated:YES];
+        
+    }
+    else if([[currentPayrollData objectForKey:@"DataSource"] isEqualToString:@"EMAIL"])
     {
         NSInteger recount = [[currentPayrollData  valueForKey:@"Recount"] integerValue];
-        NSString *checkDate =[currentPayrollData objectForKey:@"PayDate"] ;
-        
+         
         if(recount == 1)
         {
             //Single Check
-            
             
             
             if(!self.IsReadLatestPayroll)
@@ -191,12 +181,13 @@
                 
             }
             
+           
             OLYCurrentPayrollMainViewController * nextViewController =[self.storyboard instantiateViewControllerWithIdentifier:@"CurrentPayrollMainDetails"];
             nextViewController.EmailDetails = currentPayrollData;
             nextViewController.RecordNumber = 0;
             nextViewController.EmpName = self.EmpName;
             nextViewController.CompName = self.CompName;
-            nextViewController.PayDate = checkDate;
+            nextViewController.PayDate = [currentPayrollData objectForKey:@"PayDate"];
             [self.navigationController pushViewController:nextViewController animated:YES];
         }
         else
@@ -207,41 +198,84 @@
             nextViewController.EmailDetails = currentPayrollData;
             nextViewController.EmpName = self.EmpName;
             nextViewController.CompName = self.CompName;
-            nextViewController.PayDate = checkDate;
+            nextViewController.PayDate = [currentPayrollData objectForKey:@"PayDate"];
             [self.navigationController pushViewController:nextViewController animated:YES];
             
         }
+
     }
     else
     {
-        NSString *detailsID =[currentPayrollData valueForKey:@"ID"];
-        NSString *checkDate =[[[currentPayrollData objectForKey:@"Employee"] objectForKey:@"PayDate"] objectAtIndex:0];
-        
-        
-        if(detailsID==nil || checkDate==nil)
-            return;
-        
-        OLYDetailViewController *nextViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"HistoryDetails"];
-        nextViewController.ClientAccountID = self.ClientAccountID;
-        nextViewController.HistoryID = detailsID;
-        nextViewController.CheckDate = checkDate;
-        [self.navigationController pushViewController:nextViewController animated:YES];
-        
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Data Error!"
+                                                        message:@"Please contact olympic Payroll."
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
     }
     
-    
+
+
 }
+
+
+
+
 
 - (IBAction)PreviousPayrollClick:(id)sender {
     
     if(tapCount !=0) return;
     
     tapCount++;
-    OLYSoapMessages *objSoapMsg =[OLYSoapMessages new];
     
-    self.MethodName = @"GetPayrollYears";
-    [objSoapMsg GetPayrollYears:self.EmpID MethodName:self.MethodName];
-    [self FireRequest: objSoapMsg.UrlRequest];
+     // Retreiving an Yearlist
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSMutableArray *arrayYears = [[[prefs stringForKey:@"Yearlist"] componentsSeparatedByString:@","] mutableCopy];
+   
+    
+    if([arrayYears count] > 0)
+    {
+        [spinner stopAnimating];
+  
+        //Check the same user.
+        if([arrayYears[0] intValue] == [self.EmpID intValue])
+        {
+            NSArray *payDateArray =[[currentPayrollData objectForKey:@"PayDate"] componentsSeparatedByString:@","];
+         
+            //If Year's latest payroll is  eaqual to year of current Payroll.
+            if([arrayYears[1] intValue] == [payDateArray[1] intValue])
+            {
+                [arrayYears removeObjectAtIndex: 0];
+                [self MoveToPreviousPayrollController : arrayYears ];
+            }
+            else
+            {
+                 OLYSoapMessages *objSoapMsg =[OLYSoapMessages new];
+                    
+                 self.MethodName = @"GetPayrollYears";
+                 [objSoapMsg GetPayrollYears:self.EmpID MethodName:self.MethodName];
+                 [self FireRequest: objSoapMsg.UrlRequest];
+             }
+        }
+        else
+        {
+            OLYSoapMessages *objSoapMsg =[OLYSoapMessages new];
+            
+            self.MethodName = @"GetPayrollYears";
+            [objSoapMsg GetPayrollYears:self.EmpID MethodName:self.MethodName];
+            [self FireRequest: objSoapMsg.UrlRequest];
+       
+        }
+
+    }
+    else
+    {
+        OLYSoapMessages *objSoapMsg =[OLYSoapMessages new];
+        
+        self.MethodName = @"GetPayrollYears";
+        [objSoapMsg GetPayrollYears:self.EmpID MethodName:self.MethodName];
+        [self FireRequest: objSoapMsg.UrlRequest];
+    }
     
 }
 
@@ -251,6 +285,60 @@
 -(void)GetLatestPayroll
 {
     
+    // Retreiving an CurrentPayrollData
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSMutableDictionary *previousPayroll = [prefs objectForKey:@"CurrentPayrollData"];
+
+    id  payrollDetailsDict=[[previousPayroll objectForKey:@"Details"] objectAtIndex:0];
+    int previousPayrollID = [[payrollDetailsDict valueForKey:@"SentID"] intValue];
+    int previousUserEmpID = [[prefs stringForKey:@"EmpID"] intValue];
+    
+     if(previousUserEmpID == [self.EmpID intValue] && previousPayrollID == [self.LatestPayrollID intValue])
+     {
+  
+         if([[previousPayroll objectForKey:@"DataSource"] isEqualToString:@"HISTORY"] )
+         {
+            [self DisplayLatestPayroll];
+         }
+         else if([[previousPayroll objectForKey:@"DataSource"] isEqualToString:@"EMAIL"] )
+         {
+            self.IsReadLatestPayroll = [[prefs objectForKey:@"IsReadLatestPayroll"] boolValue];
+           
+             if(self.IsReadLatestPayroll)
+             {
+                 self.lblCheckDate.text = [prefs objectForKey:@"CheckDate"];
+                 currentPayrollData = previousPayroll;
+             }
+             else
+             {
+                [self DisplayLatestPayroll];
+             }
+
+         }
+         else
+         {
+             [self DisplayLatestPayroll];
+         }
+         
+         
+     }
+    else
+    {
+        [prefs setValue:self.EmpID forKey:@"EmpID"];
+        //[prefs setValue:self.LatestPayrollID forKey:@"LatestPayrollID"];
+        [prefs synchronize];
+      
+        [self DisplayLatestPayroll];
+    
+    }
+ 
+}
+
+
+
+-(void)DisplayLatestPayroll
+{
+
     OLYSoapMessages *objSoapMsg =[OLYSoapMessages new];
     
     self.MethodName = @"GetLatestPayroll";
@@ -258,9 +346,9 @@
     [objSoapMsg GetPayrollHistory:self.EmpID MethodName:self.MethodName];
     
     [self FireRequest: objSoapMsg.UrlRequest];
+
+
 }
-
-
 
 
 -(void)DisplayCheckDates
@@ -312,15 +400,13 @@
 
 
 
--(void) MoveToPreviousPayrollController{
-    NSArray *years=[previousPayrollData objectForKey:@"Years"];
-    years = [years[0] componentsSeparatedByString:@","];
-    //NSArray *years = [list[0] componentsSeparatedByString:@","];
+-(void) MoveToPreviousPayrollController :(NSMutableArray *) arrayYears{
+
     
-    
-    if([years count]== 1)
+    //If Employee has one year payroll.
+    if([arrayYears count]== 1)
     {
-        pickYear = years[0];
+        pickYear = arrayYears[0];
         
         [self DisplayCheckDates];
         
@@ -334,7 +420,7 @@
         nextViewController.EmpName = self.EmpName;
         nextViewController.CompName = self.CompName;
         nextViewController.ClientAccountID = self.ClientAccountID;
-        nextViewController.YearList = years;
+        nextViewController.YearList = arrayYears;
         
         [self.navigationController pushViewController:nextViewController animated:YES];
     }
@@ -355,6 +441,7 @@ qualifiedName:(NSString *)qName
         
         NSData *requestResult = [self.SoapResults dataUsingEncoding:NSUTF8StringEncoding];
         
+        
         NSMutableDictionary *requestedData = [NSJSONSerialization  JSONObjectWithData:requestResult
                                                                               options:0
                                                                                 error:nil];
@@ -368,18 +455,46 @@ qualifiedName:(NSString *)qName
         if ([self.MethodName isEqualToString: @"GetLatestPayroll" ]) {
             [spinner stopAnimating];
             currentPayrollData = requestedData;
-            NSArray *monthYear = [[requestedData objectForKey:@"PayDate"] componentsSeparatedByString: @","];
-            
-            self.lblCheckDate.text = [NSString stringWithFormat:@"(%@,%@)", monthYear[0], monthYear[1]];
-            
-            
-            self.IsReadLatestPayroll = [[[[currentPayrollData objectForKey:@"Details"] objectAtIndex:0] valueForKey:@"IsRead"] boolValue];
-            
-            if(!self.IsReadLatestPayroll)
+            self.CheckDate =[requestedData valueForKey:@"PayDate"];
+            self.lblCheckDate.text =self.CheckDate;
+           
+             NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+            //  saving an CurrentPayrollData
+            if([[requestedData objectForKey:@"DataSource"] isEqualToString:@"HISTORY"])
             {
-                self.NewImg.image = [UIImage imageNamed:@"new.png"];
+                //Rettrieve data from History Details table
+                self.IsReadLatestPayroll = YES;
+
+                [prefs setObject:nil forKey:@"CurrentPayrollData"];
+                [prefs synchronize];
             }
+            else if([[requestedData objectForKey:@"DataSource"] isEqualToString:@"EMAIL"]){
+               
+                self.IsReadLatestPayroll = [[[[requestedData objectForKey:@"Details"] objectAtIndex:0] valueForKey:@"IsRead"] boolValue];
             
+                if(!self.IsReadLatestPayroll)
+                {
+                    [prefs setValue:@"False" forKey:@"IsReadLatestPayroll"];
+                    self.NewImg.image = [UIImage imageNamed:@"new.png"];
+                }
+ 
+                [prefs setObject:currentPayrollData forKey:@"CurrentPayrollData"];
+                [prefs setValue:self.CheckDate forKey:@"CheckDate"];
+                [prefs synchronize];
+                
+
+            }
+            else
+            {
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Data Error!"
+                                                                message:@"Please contact olympic Payroll."
+                                                               delegate:nil
+                                                      cancelButtonTitle:@"OK"
+                                                      otherButtonTitles:nil];
+                [alert show];
+
+            
+            }
             
         }
         else if ([self.MethodName isEqualToString: @"GetPayrollHistory" ]) {
@@ -399,7 +514,20 @@ qualifiedName:(NSString *)qName
         else if([self.MethodName isEqualToString: @"GetPayrollYears" ])
         {
             previousPayrollData = requestedData;
-            [self MoveToPreviousPayrollController];
+            
+            if(requestedData != nil)
+            {
+                NSString *yearlist = [[requestedData objectForKey:@"Years"] objectAtIndex:0];
+                NSMutableArray *arrayYears = [[yearlist componentsSeparatedByString:@","] mutableCopy];
+                
+               
+                // saving an Yearlist and EmpID
+                NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+                [prefs setValue:[NSString stringWithFormat:@"%@,%@",self.EmpID, yearlist] forKey:@"Yearlist"];
+                [prefs synchronize];
+                
+                [self MoveToPreviousPayrollController :arrayYears];
+            }
             
         }
         

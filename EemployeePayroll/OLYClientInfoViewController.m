@@ -87,6 +87,7 @@
         nextViewController.EmpName = self.EmpName;
         nextViewController.EmpID = [[self.CompanyInfo valueForKey:@"EmpID"] objectAtIndex:indexPath.row];
         nextViewController.ClientAccountID= [[self.CompanyInfo valueForKey:@"ClientAccountID"] objectAtIndex:indexPath.row];
+        nextViewController.LatestPayrollID = self.LatestPayrollID;
         nextViewController.CompName = [[self.CompanyInfo valueForKey:@"CompName"] objectAtIndex:indexPath.row];
         [self.navigationController pushViewController:nextViewController animated:YES];
     }

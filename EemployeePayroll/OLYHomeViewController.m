@@ -247,12 +247,12 @@ qualifiedName:(NSString *)qName
         {
             if (checkCount==1) {
                 
+                
+                              
+                
                 OLYDetailViewController *nextViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"HistoryDetails"];
-                nextViewController.EmpName = self.EmpName;
-                nextViewController.CompName = self.CompName;
                 nextViewController.ClientAccountID = self.ClientAccountID;
-                nextViewController.HistoryID = historyID;
-                nextViewController.CheckDate =[NSString stringWithFormat:@"%@,%@", checkDateString, self.lblYear.text];
+                nextViewController.CheckDate =[requestedData valueForKey:@"PayDate"];
                 nextViewController.HistoryData = requestedData;
                 [self.navigationController pushViewController:nextViewController animated:YES];
             }
@@ -283,10 +283,7 @@ qualifiedName:(NSString *)qName
         {
             [spinner stopAnimating];
             OLYDetailViewController *nextViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"HistoryDetails"];
-            nextViewController.EmpName = self.EmpName;
-            nextViewController.CompName = self.CompName;
             nextViewController.ClientAccountID = self.ClientAccountID;
-            nextViewController.HistoryID = historyID;
             nextViewController.CheckDate =[NSString stringWithFormat:@"%@,%@", checkDateString, self.lblYear.text];
             nextViewController.HistoryData = requestedData;
             [self.navigationController pushViewController:nextViewController animated:YES];

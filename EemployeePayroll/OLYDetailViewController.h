@@ -28,13 +28,13 @@
 @property (weak, nonatomic) IBOutlet UILabel *lblPaytype;
 @property (weak, nonatomic) IBOutlet UIImageView *imgBanner;
 
-@property(nonatomic,strong) NSString *EmpName;
-@property(nonatomic,strong) NSString *CompName;
+//@property(nonatomic,strong) NSString *EmpName;
+//@property(nonatomic,strong) NSString *CompName;
 
 
 @property (nonatomic, strong) NSMutableDictionary *HistoryData;
 @property (nonatomic, strong) NSString *ClientAccountID;
-@property (nonatomic, strong) NSString *HistoryID;
+//@property (nonatomic, strong) NSString *HistoryID;
 @property (nonatomic, strong) NSString *CheckDate;
 //@property (nonatomic, strong) NSString *NetPay;
 

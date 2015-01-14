@@ -55,7 +55,8 @@
     self.lblCheckNo.text = [NSString stringWithFormat:@"Check No. %@", checkNo];
     //self.lblEmpName.text = self.EmpName;
     //self.lblCompName.text = self.CompName;
-    
+    self.tableView.delegate = self;
+    self.tableView.dataSource = self;
     
     [self displayTableView];
     
@@ -127,15 +128,15 @@
  
 }
 
-
-
-
-
-
-
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 18)];
+    /* Create custom view to display section header... */
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 5, tableView.frame.size.width, 18)];
+    [label setFont:[UIFont systemFontOfSize:15]];
     NSString *sectionName = @"";
+    /* Section header is in 0th index... */
+    
     switch (section)
     {
         case 0:
@@ -156,18 +157,69 @@
             break;
         case 2:
             if([deductions count] > 0)
-            sectionName =[NSString stringWithFormat:@"%@%@%@"
-                          ,@"MISC DEDUCTIONS"
-                          ,[@"" stringByPaddingToLength:22 withString:@" " startingAtIndex:0]
-                          ,@"AMOUNT"
-                          ];
+                sectionName =[NSString stringWithFormat:@"%@%@%@"
+                              ,@"MISC DEDUCTIONS"
+                              ,[@"" stringByPaddingToLength:22 withString:@" " startingAtIndex:0]
+                              ,@"AMOUNT"
+                              ];
             break;
-
+            
         default:
             break;
     }
-    return sectionName;
+
+    
+    
+    
+    [label setText:sectionName];
+    [view addSubview:label];
+    [view setBackgroundColor:[UIColor groupTableViewBackgroundColor]]; //your background color...
+    return view;
 }
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return 30.0;
+}
+
+
+
+
+//- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+//{
+//    NSString *sectionName = @"";
+//    switch (section)
+//    {
+//        case 0:
+//            sectionName =[NSString stringWithFormat:@"%@%@%@%@%@"
+//                          ,@"EARNINGS"
+//                          ,[@"" stringByPaddingToLength:15 withString:@" " startingAtIndex:0]
+//                          ,@"HOURS"
+//                          ,[@"" stringByPaddingToLength:10 withString:@" " startingAtIndex:0]
+//                          ,@"AMOUNT"
+//                          ];
+//            break;
+//        case 1:
+//            sectionName =[NSString stringWithFormat:@"%@%@%@"
+//                          ,@"TAXES"
+//                          ,[@"" stringByPaddingToLength:45 withString:@" " startingAtIndex:0]
+//                          ,@"AMOUNT"
+//                          ];
+//            break;
+//        case 2:
+//            if([deductions count] > 0)
+//            sectionName =[NSString stringWithFormat:@"%@%@%@"
+//                          ,@"MISC DEDUCTIONS"
+//                          ,[@"" stringByPaddingToLength:22 withString:@" " startingAtIndex:0]
+//                          ,@"AMOUNT"
+//                          ];
+//            break;
+//
+//        default:
+//            break;
+//    }
+//    return sectionName;
+//}
 
 
 

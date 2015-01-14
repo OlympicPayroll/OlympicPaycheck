@@ -29,8 +29,6 @@
     int fullCounter;
     NSString *fullSSN;
     UIActivityIndicatorView *spinner;
-    NSString *nameSave;
-    NSUserDefaults *defaults;
     NSString *deviceToken;
     
 }
@@ -39,8 +37,6 @@
 @end
 
 @implementation OLYLoginViewController
-
-@synthesize retainUser;
 
 
 -(void)viewDidAppear:(BOOL)animated{
@@ -78,6 +74,7 @@
     
 }
 
+
 - (IBAction)doneAction:(id)sender {
     
     // user tapped the Done button, release first responder on the text view
@@ -88,11 +85,15 @@
     }
 }
 
+
+
 -(IBAction)nextButton:(id)sender{
     [self.txtSSN becomeFirstResponder];
     self.btnNext.enabled = NO;
     self.btnPrevious.enabled = YES;
 }
+
+
 
 -(IBAction)previousButton:(id)sender{
     [self.txtEmaiAddress becomeFirstResponder];
@@ -114,6 +115,7 @@
     return YES;
 }
 
+
 -(void) viewWillAppear:(BOOL)animated
 {
     //[super viewDidLoad];
@@ -121,9 +123,9 @@
     
     //self.title =@"Olympic Payroll Services";
     self.txtSSN.secureTextEntry = YES;
-    self.txtEmaiAddress.text =@"ohheyliv@aol.com";
-    self.txtSSN.text =@"3546";
-    //self.txtEmaiAddress.text =@"VALE.S2020@GMAIL.COM";
+    //self.txtEmaiAddress.text =@"ohheyliv@aol.com";
+    //self.txtSSN.text =@"3546";
+   // self.txtEmaiAddress.text =@"VALE.S2020@GMAIL.COM";
     //self.txtSSN.text =@"6922";
     
     self.navigationController.navigationBar.hidden = YES;
@@ -137,10 +139,8 @@
     self.txtSSN.layer.borderColor=[[UIColor lightGrayColor]CGColor];
     self.txtSSN.layer.borderWidth= 1.0f;
     
-    NSString *Welcome = [NSString stringWithFormat: @"%@\n%@", @"Welcome to", @"Olympic Paycheck"];
-    self.lblWelcome.text = Welcome;
-    
-    
+    self.lblWelcome.text = [NSString stringWithFormat: @"%@\n%@", @"Welcome to", @"Olympic Paycheck"];
+   
     
     NSDate *today = [NSDate date];
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
@@ -158,17 +158,28 @@
         greeting = @"Good night";
     }
     
-    defaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+
+    self.retainUser.on = [[defaults stringForKey:@"rememberID"] boolValue];
     
-    NSString *keepUserSetting = [defaults stringForKey:@"rememberID"];
-    if ([keepUserSetting isEqualToString:@"On"]){
-        self.retainUser.on = YES;
+    if(self.retainUser.on)
+    {
+        NSString* empName =[defaults objectForKey:@"nameField"];
+        NSArray *lastNameFirsName = [empName componentsSeparatedByString:@", "];
+        
+        NSString *firstName =([lastNameFirsName count] > 1) ? [lastNameFirsName[1] capitalizedString] : empName  ;
+        
         self.txtEmaiAddress.text = [defaults objectForKey:@"emailAddress"];
-        self.lblName.text = [NSString stringWithFormat: @"%@,\n%@", greeting, [defaults objectForKey:@"nameField"]];
-    }else{
-        self.retainUser.on = NO;
+        
+        self.lblName.text = [NSString stringWithFormat: @"%@,\n%@", greeting, firstName];
+        
+    }
+    else
+    {
+        self.txtEmaiAddress.text =@"";
         self.lblName.text = [NSString stringWithFormat: @"%@!", greeting];
     }
+    self.txtSSN.text =@"";
     
     attempts = 0;
     fullCounter = 0;
@@ -179,8 +190,7 @@
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string  {
     
     BOOL retVal=YES;
-    //if (textField.tag == 1010){
-    //  retVal = YES;
+ 
     if (textField.tag == 1020){
         NSUInteger newLength = [textField.text length] + [string length] - range.length;
         NSCharacterSet *cs = [[NSCharacterSet characterSetWithCharactersInString:NUMBERS_ONLY] invertedSet];
@@ -213,20 +223,6 @@
 }
 
 
-//- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-//
-//    UITouch *touch = [[event allTouches] anyObject];
-//    if ([_txtSSN isFirstResponder] && [touch view] != _txtSSN) {
-//        [_txtSSN resignFirstResponder];
-//    }
-//    [super touchesBegan:touches withEvent:event];
-
-//    UITouch *touch1 = [[event allTouches] anyObject];
-//    if ([_txtEmaiAddress isFirstResponder] && [touch1 view] != _txtEmaiAddress) {
-//        [_txtEmaiAddress resignFirstResponder];
-//    }
-//    [super touchesBegan:touches withEvent:event];
-//}
 
 - (IBAction)btnPrivacyAndTerms:(id)sender{
     
@@ -244,6 +240,7 @@
     
     tapCount++;
     
+     
     NSString *email = self.txtEmaiAddress.text;
     NSString *ssn = self.txtSSN.text;
     
@@ -266,7 +263,7 @@
         [self dismissViewControllerAnimated:YES completion:nil];
         tapCount = 0;
         isSuccess = NO;
-        //[self.navigationController popViewControllerAnimated:YES];
+        
         return;
     }
     
@@ -290,24 +287,79 @@
     }
     
     
+    NSDateFormatter *DateFormatter=[[NSDateFormatter alloc] init];
+    [DateFormatter setDateFormat:@"yyyy-MM-dd"];
+    NSString* currentDate = [DateFormatter stringFromDate:[NSDate date]];
     
-    NSString *emailSaveField = self.txtEmaiAddress.text;
+   
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     
+    NSString*previousDate = [prefs stringForKey:@"LastDateEntry"];
+    NSString* previousEmail = [prefs stringForKey:@"emailAddress"];
+    NSString* previousSSN = [prefs stringForKey:@"ssn"];
+
+
+    if([email isEqual: previousEmail] && [ssn isEqual: previousSSN] && [currentDate isEqual:previousDate] )
+    {
+        NSString *switchStatus =[NSString stringWithFormat:@"%d",self.retainUser.on];
+       [prefs setValue:switchStatus forKey:@"rememberID"];
+       [prefs synchronize];
+        
+        NSMutableDictionary *companyInfo =[prefs objectForKey:@"CompanyInfo"];
+       
+        if ([companyInfo isEqual:nil]) {
+            //Save Device Token.
+            deviceToken = [(OLYAppDelegate *)[[UIApplication sharedApplication] delegate] DeviceToken];
+            
+            [self FireRequest:email SSN:ssn MethodName:@"GetClientAccountsInformations"] ;
+
+        }
+        else
+        {
+        
+        
+            NSString *latestPayrollID = [[companyInfo valueForKey:@"LatestPayrollID"] objectAtIndex:0];
+        
+            NSString*empName = [prefs stringForKey:@"nameField"];
+        
+            //If Employee works in single company
+            if([companyInfo count] == 1)
+            {
+            
+                OLYPayTypeViewController2 *nextViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PayTypeViewController"];
+            
+            
+                nextViewController.EmpID =[[companyInfo valueForKey:@"EmpID"] objectAtIndex:0];
+                nextViewController.EmpName = empName;
+                nextViewController.LatestPayrollID =latestPayrollID;
+                nextViewController.ClientAccountID= [[companyInfo valueForKey:@"ClientAccountID"] objectAtIndex:0];
+                nextViewController.CompName = [[companyInfo valueForKey:@"CompName"] objectAtIndex:0];
+                [self.navigationController pushViewController:nextViewController animated:YES];
+            }
+            else
+            {
+            
+                //Employees works in multiple company.
+                OLYClientInfoViewController *nextViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"CompanyInfo"];
+                nextViewController.LatestPayrollID =latestPayrollID;
+                nextViewController.CompanyInfo = companyInfo;
+                nextViewController.EmpName = empName;
+                [self.navigationController pushViewController:nextViewController animated:YES];
+            
+            
+            }
+        }
     
-    defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:emailSaveField forKey:@"emailAddress"];
-    
-    if([retainUser isOn]){
-        [defaults setObject:@"On" forKey:@"rememberID"];
-    }else if(retainUser.on == 0){
-        [defaults setObject:@"Off" forKey:@"rememberID"];
     }
-    [defaults synchronize];
+    else
+    {
+        
+        //Save Device Token.
+        deviceToken = [(OLYAppDelegate *)[[UIApplication sharedApplication] delegate] DeviceToken];
     
-    deviceToken = [(OLYAppDelegate *)[[UIApplication sharedApplication] delegate] DeviceToken];
-    
-    
-    [self FireRequest:email SSN:ssn];
+        [self FireRequest:email SSN:ssn MethodName:@"GetClientAccountsInformations"] ;
+        
+    }
     
     
 }
@@ -316,15 +368,16 @@
 
 
 
--(void)FireRequest: (NSString*)email  SSN:(NSString*) ssn
+
+
+-(void)FireRequest: (NSString*)email  SSN:(NSString*) ssn MethodName:(NSString*) methodName
 {
     
-    //self.MethodName = @"GetClientAccountsInfo";
-    self.MethodName = @"GetClientAccountsInformations";
+    self.MethodName = methodName;
     
     OLYSoapMessages *objSoapMsg =[OLYSoapMessages new];
     
-    [objSoapMsg GetClientAccountsInfo:email SSN:ssn DeviceToken:deviceToken MethodName:self.MethodName];
+    [objSoapMsg GetClientAccountsInfo:email SSN:ssn DeviceToken:deviceToken DeviceType:@"IOS" MethodName:methodName];
     
     
     spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
@@ -374,22 +427,68 @@
 
 -(void)MoveToNextController :(NSMutableDictionary *)requestedData{
     
+     NSString *ssn = self.txtSSN.text;
     
     BOOL isPassed = [[requestedData valueForKey:@"IsPassed"] boolValue];
     
     if(!isPassed)
     {
+
+        if(![[requestedData valueForKey:@"IsValidEmail"] boolValue])
+        {
+            [spinner stopAnimating];
+            
+           
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@""
+                                                            message:@"Invalid Email Address."
+                                                           delegate:nil
+                                                  cancelButtonTitle:@"OK"
+                                                  otherButtonTitles:nil];
+            
+            [alert show];
+            tapCount =0;
+            isSuccess = NO;
+            return;
+
         
-        fullSSN = [requestedData valueForKey:@"FullSSN"];
-        NSString *message = [requestedData valueForKey:@"ErrorMsg"];
+        }
         
         
-        [self CheckValidEntry:message];
         
+        int empCount =[[requestedData valueForKey:@"EmpCount"] intValue];
+        if(empCount > 1)
+        {
+           [spinner stopAnimating];
+            
+            NSString *message = [NSString stringWithFormat
+                                 :@"This Email is used by (%d) Employees with different SS number. Please call Olympic Payroll."
+                                 , empCount];
+            
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@""
+                                               message:message
+                                              delegate:nil
+                                     cancelButtonTitle:@"OK"
+                                     otherButtonTitles:nil];
+            
+            [alert show];
+            isSuccess = NO;
+            tapCount =0;
+          return;
+        }
+
         
-        // isSuccess = isPassed;
+        if(![[requestedData valueForKey:@"IsValidSSN"] boolValue])
+        {
+
+            fullSSN = [requestedData valueForKey:@"FullSSN"];
+        
+            [self CheckValidEntry:@"Invalid Social Security number."];
+        }
+
         if(!isSuccess)
             [spinner stopAnimating];
+        
+        tapCount =0;
         return;
         
     }else{
@@ -401,35 +500,56 @@
     }
     
     
+    NSDateFormatter *DateFormatter=[[NSDateFormatter alloc] init];
+    [DateFormatter setDateFormat:@"yyyy-MM-dd"];
+    NSString* currentDate = [DateFormatter stringFromDate:[NSDate date]];
+    
     NSString *empName = [requestedData valueForKey:@"Name"];
-    nameSave = [requestedData valueForKey:@"Name"];
-    NSArray *substrings = [nameSave componentsSeparatedByString:@", "];
-    nameSave = [substrings objectAtIndex:1];
-    nameSave = [nameSave capitalizedString];
+
+   // NSString* ssn = self.txtSSN.text;
+  
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSString *switchStatus =[NSString stringWithFormat:@"%d",self.retainUser.on];
+    [defaults setValue:switchStatus forKey:@"rememberID"];
+    [defaults setValue:self.txtEmaiAddress.text forKey:@"emailAddress"];
+    [defaults setValue:ssn forKey:@"ssn"];
+    [defaults setValue:empName forKey:@"nameField"];
+    [defaults setValue:currentDate forKey:@"LastDateEntry"];
     
-    defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:nameSave forKey:@"nameField"];
-    
-    if([retainUser isOn]){
-        [defaults setObject:@"On" forKey:@"rememberID"];
-    }else if(retainUser.on == 0){
-        [defaults setObject:@"Off" forKey:@"rememberID"];
-    }
-    [defaults synchronize];
-    
-    
-    
+
     
     NSMutableDictionary *companyInfo =[requestedData valueForKey:@"CompanyInfo"];
+    [defaults setObject:companyInfo forKey:@"CompanyInfo"];
+    [defaults synchronize];
+    
+    NSString *latestPayrollID = [[companyInfo valueForKey:@"LatestPayrollID"] objectAtIndex:0];
+    
+    /*
+    if(latestPayrollID == "")
+    alert = [[UIAlertView alloc] initWithTitle:@""
+                                       message:@"Please enter a valid email address and try again."
+                                      delegate:nil
+                             cancelButtonTitle:@"OK"
+                             otherButtonTitles:nil];
+    
+    [alert show];
+    */
+    [self dismissViewControllerAnimated:YES completion:nil];
+    tapCount = 0;
+    isSuccess = NO;
+
+    
     
     //If Employee works in single company
     if([companyInfo count] == 1)
     {
+  
         OLYPayTypeViewController2 *nextViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PayTypeViewController"];
         
         
         nextViewController.EmpID =[[companyInfo valueForKey:@"EmpID"] objectAtIndex:0];
         nextViewController.EmpName = empName;
+        nextViewController.LatestPayrollID =latestPayrollID;
         nextViewController.ClientAccountID= [[companyInfo valueForKey:@"ClientAccountID"] objectAtIndex:0];
         nextViewController.CompName = [[companyInfo valueForKey:@"CompName"] objectAtIndex:0];
         [self.navigationController pushViewController:nextViewController animated:YES];
@@ -439,6 +559,7 @@
         
         //Employees works in multiple company.
         OLYClientInfoViewController *nextViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"CompanyInfo"];
+        nextViewController.LatestPayrollID =latestPayrollID;
         nextViewController.CompanyInfo = companyInfo;
         nextViewController.EmpName = empName;
         [self.navigationController pushViewController:nextViewController animated:YES];
@@ -453,11 +574,6 @@
         NSString *inputFullSSN = [alertView textFieldAtIndex:0].text;
         
         inputFullSSN = [inputFullSSN stringByReplacingOccurrencesOfString:@"-" withString:@""];
-        //NSString *beginning = [inputFullSSN substringToIndex:3];
-        //NSRange midRange = NSMakeRange(4, 2);
-        //NSString *middle = [inputFullSSN substringWithRange:midRange];
-        //NSString *end = [inputFullSSN substringFromIndex:7];
-        //inputFullSSN = [NSString stringWithFormat: @"%@%@%@", beginning, middle, end];
         
         if([inputFullSSN length] != 9){
             [spinner stopAnimating];
@@ -487,7 +603,7 @@
         }else{
             isSuccess = YES;
             NSRange midRange = NSMakeRange(5, 4);
-            [self FireRequest:self.txtEmaiAddress.text SSN:[inputFullSSN substringWithRange:midRange]];
+            [self FireRequest:self.txtEmaiAddress.text SSN:[inputFullSSN substringWithRange:midRange] MethodName:@"GetClientAccountsInformations"];
             
         }
         
@@ -567,7 +683,7 @@
 -(void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
 {
     
-    if ([elementName isEqualToString:[NSString stringWithFormat:@"%@Result", self.MethodName]])
+    if ([elementName isEqualToString:[NSString stringWithFormat:@"%@Result",@"GetClientAccountsInformations"]])
     {
         
         NSData *requestResult = [self.SoapResults dataUsingEncoding:NSUTF8StringEncoding];

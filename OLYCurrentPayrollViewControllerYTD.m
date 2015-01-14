@@ -32,6 +32,8 @@
     self.lblEmpName.text = self.EmpName;
     self.lblCompName.text = self.CompName;
     [self ParseEmailDetails];
+    self.tableView.delegate = self;
+    self.tableView.dataSource = self;
     
 }
 
@@ -109,43 +111,98 @@
 }
 
 
-
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
-
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 18)];
+    /* Create custom view to display section header... */
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 5, tableView.frame.size.width, 18)];
+    [label setFont:[UIFont systemFontOfSize:15]];
     NSString *sectionName;
+    /* Section header is in 0th index... */
+    
     switch (section)
     {
         case 0:
+
             sectionName =[NSString stringWithFormat:@"%@%@%@"
-                          ,@"EARNINGS"
-                          ,[@"" stringByPaddingToLength:25 withString:@" " startingAtIndex:0]
-                          ,@"YEAR TO DATE"
-                          ];
+                            ,@"EARNINGS"
+                            ,[@"" stringByPaddingToLength:28 withString:@" " startingAtIndex:0]
+                            ,@"YEAR TO DATE"
+                            ];
+            
             break;
         case 1:
             sectionName =@"TAXES";
-            
-            break;
 
-        case 2:
-            sectionName = @"DEDUCTIONS";
-            break;
-        case 3:
-          if([reverseTipsRequestDict count] > 0)
-            sectionName = @"REVERSE TIPS";
-            break;
-            // ...
-        default:
-            sectionName = @"";
-            break;
-    }
-    return sectionName;
+                break;
     
+            case 2:
+                sectionName = @"DEDUCTIONS";
+                break;
+            case 3:
+              if([reverseTipsRequestDict count] > 0)
+                sectionName = @"REVERSE TIPS";
+                break;
+                // ...
+            default:
+          
+                break;
+        }
+
     
-    
-    return sectionName;
+    [label setText:sectionName];
+    [view addSubview:label];
+    [view setBackgroundColor:[UIColor groupTableViewBackgroundColor]]; //your background color...
+    return view;
 }
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return 30.0;
+}
+
+//- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+//{
+//    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 18)];
+//    /* Create custom view to display section header... */
+//    UILabel *sectionName = [[UILabel alloc] initWithFrame:CGRectMake(10, 5, tableView.frame.size.width, 18)];
+//    [sectionName setFont:[UIFont systemFontOfSize:12]];
+//    //NSString *sectionName;
+//    /* Section header is in 0th index... */
+//    
+//    switch (section)
+//    {
+//        case 0:
+//            sectionName.text =[NSString stringWithFormat:@"%@%@%@"
+//                          ,@"EARNINGS"
+//                          ,[@"" stringByPaddingToLength:25 withString:@" " startingAtIndex:0]
+//                          ,@"YEAR TO DATE"
+//                          ];
+//            break;
+//        case 1:
+//            sectionName.text =@"TAXES";
+//            
+//            break;
+//
+//        case 2:
+//            sectionName.text = @"DEDUCTIONS";
+//            break;
+//        case 3:
+//          if([reverseTipsRequestDict count] > 0)
+//            sectionName.text = @"REVERSE TIPS";
+//            break;
+//            // ...
+//        default:
+//      
+//            break;
+//    }
+//    //return sectionName.text;
+//        //[sectionName setText:@"Test"];
+//        [view addSubview:sectionName];
+//        [view setBackgroundColor:[UIColor colorWithRed:166/255.0 green:177/255.0 blue:186/255.0 alpha:1.0]]; //your background color...
+//        return view;
+//    
+//}
 
 
 

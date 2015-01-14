@@ -22,6 +22,7 @@
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 
 @property (nonatomic,strong) NSMutableDictionary *CompanyInfo;
+@property (nonatomic,strong) NSString *LatestPayrollID;
 @property (weak, nonatomic) IBOutlet UILabel *Name;
 @property (weak, nonatomic) IBOutlet UIImageView *imgBanner;
 

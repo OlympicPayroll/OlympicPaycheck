@@ -19,7 +19,7 @@
 
 @property (weak, nonatomic) IBOutlet UILabel *lblInformation;
 
-@property (nonatomic, strong) NSString *HistoryID;
+@property (nonatomic, strong) NSString *LatestPayrollID;
 
 @property (nonatomic, strong) IBOutlet UIView *logOutView;
 
@@ -30,6 +30,7 @@
 @property (nonatomic, strong) NSString *EmpName;
 @property(nonatomic, strong) NSString *ClientAccountID;
 @property(nonatomic, strong) NSString *CompName;
+@property(nonatomic, strong) NSString *CheckDate;
 //@property(nonatomic) BOOL *IsRead;
 
 @property (weak, nonatomic) IBOutlet UIButton *btnLatestPayroll;

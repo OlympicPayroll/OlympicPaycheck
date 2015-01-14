@@ -28,8 +28,8 @@
 @property (nonatomic) NSInteger RecordNumber;
 @property(nonatomic, strong) NSString *NetValue;
 @property (nonatomic, strong) NSString *PayDate;
-@property (nonatomic, strong) NSString *EmpName;
-@property (nonatomic, strong) NSString *CompName;
+//@property (nonatomic, strong) NSString *EmpName;
+//@property (nonatomic, strong) NSString *CompName;
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section;
 

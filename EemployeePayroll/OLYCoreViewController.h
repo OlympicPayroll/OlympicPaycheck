@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface OLYCoreViewController : UIViewController< NSXMLParserDelegate>
+@interface OLYCoreViewController : UIViewController
 {
     
 

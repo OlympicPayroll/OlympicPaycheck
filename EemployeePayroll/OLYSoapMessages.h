@@ -14,7 +14,7 @@
 
 -(void) GetClientAccountsInfo :(NSString*) email SSN:(NSString*) ssn MethodName:(NSString*)methodName;
 
--(void) GetClientAccountsInfo :(NSString*) email SSN:(NSString*) ssn DeviceToken:(NSString*)deviceToken MethodName:(NSString*)methodName;
+-(void) GetClientAccountsInfo :(NSString*) email SSN:(NSString*) ssn DeviceToken:(NSString*)deviceToken DeviceType:(NSString*)deviceType MethodName:(NSString*)methodName;
 
 -(void)GetPayrollYears :(NSString *)EmpID MethodName:(NSString*)methodName;
 
